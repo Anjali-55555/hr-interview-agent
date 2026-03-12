@@ -10,9 +10,10 @@ router.post('/parse', authMiddleware, upload.single('resume'), resumeController.
 // Get skill suggestions
 router.get('/skills/suggestions', authMiddleware, resumeController.getSkillSuggestions);
 
-module.exports = router;
 // Analyze resume and generate questions
 router.post('/analyze', authMiddleware, upload.single('resume'), resumeController.analyzeResume);
 
 // Generate questions from resume text
 router.post('/generate-questions', authMiddleware, resumeController.generateQuestionsFromResume);
+
+module.exports = router;
