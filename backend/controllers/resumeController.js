@@ -398,3 +398,144 @@ exports.getSkillSuggestions = async (req, res) => {
     res.status(500).json({ error: 'Failed to get suggestions' });
   }
 };
+// ============================================================
+// AI Resume Analysis + Question Generation
+// ============================================================
+const { OpenAI } = require('openai');
+
+function getAIClient() {
+  if (process.env.GROQ_API_KEY) {
+    return {
+      client: new OpenAI({ apiKey: process.env.GROQ_API_KEY, baseURL: 'https://api.groq.com/openai/v1' }),
+      model: 'llama3-8b-8192'
+    };
+  } else if (process.env.OPENAI_API_KEY) {
+    return { client: new OpenAI({ apiKey: process.env.OPENAI_API_KEY }), model: 'gpt-3.5-turbo' };
+  }
+  return null;
+}
+
+exports.analyzeResume = async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    const fileBuffer = req.file.buffer;
+    const fileType = req.file.mimetype;
+    let text = '';
+
+    if (fileType === 'application/pdf') {
+      const pdfParse = require('pdf-parse');
+      const pdfData = await pdfParse(fileBuffer);
+      text = pdfData.text;
+    } else if (fileType.includes('word')) {
+      const mammoth = require('mammoth');
+      const result = await mammoth.extractRawText({ buffer: fileBuffer });
+      text = result.value;
+    } else {
+      return res.status(400).json({ error: 'Unsupported format. Use PDF or Word.' });
+    }
+
+    const ai = getAIClient();
+    if (!ai) return res.status(400).json({ error: 'No AI API key configured' });
+
+    const prompt = `You are an expert HR analyst. Analyze this resume and provide a comprehensive analysis.
+
+RESUME TEXT:
+${text.substring(0, 3000)}
+
+Respond ONLY in this exact JSON format:
+{
+  "candidateName": "extracted name or Unknown",
+  "overallScore": number 0-100,
+  "experienceLevel": "Fresher/Junior/Mid-level/Senior/Expert",
+  "yearsOfExperience": number,
+  "topSkills": ["skill1", "skill2", "skill3", "skill4", "skill5"],
+  "technicalStrengths": ["strength1", "strength2", "strength3"],
+  "skillGaps": ["gap1", "gap2", "gap3"],
+  "educationSummary": "brief education summary",
+  "careerSummary": "2-3 sentence career summary",
+  "strengths": ["strength1", "strength2", "strength3"],
+  "areasForImprovement": ["area1", "area2"],
+  "recommendedRoles": ["role1", "role2", "role3"],
+  "interviewFocus": ["topic1", "topic2", "topic3", "topic4"]
+}`;
+
+    const completion = await ai.client.chat.completions.create({
+      model: ai.model,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.3,
+      max_tokens: 1000
+    });
+
+    let analysis = {};
+    try {
+      const raw = completion.choices[0].message.content;
+      const clean = raw.replace(/```json|```/g, '').trim();
+      analysis = JSON.parse(clean);
+    } catch(e) {
+      return res.status(500).json({ error: 'Failed to parse AI response' });
+    }
+
+    res.json({ success: true, analysis, resumeText: text.substring(0, 2000) });
+
+  } catch (error) {
+    logger.error('Resume analysis error:', error);
+    res.status(500).json({ error: 'Analysis failed: ' + error.message });
+  }
+};
+
+exports.generateQuestionsFromResume = async (req, res) => {
+  try {
+    const { resumeText, skills, experienceLevel, focusAreas } = req.body;
+    if (!resumeText) return res.status(400).json({ error: 'Resume text required' });
+
+    const ai = getAIClient();
+    if (!ai) return res.status(400).json({ error: 'No AI API key configured' });
+
+    const prompt = `You are an expert technical interviewer. Based on this candidate's resume, generate targeted interview questions.
+
+RESUME SUMMARY:
+${resumeText.substring(0, 1500)}
+Skills: ${(skills || []).join(', ')}
+Experience Level: ${experienceLevel || 'Unknown'}
+Focus Areas: ${(focusAreas || []).join(', ')}
+
+Generate exactly 12 personalized interview questions (4 technical, 4 aptitude, 4 HR) based specifically on their background.
+
+Respond ONLY in this exact JSON format:
+{
+  "questions": [
+    {
+      "category": "technical",
+      "question": "question text",
+      "difficulty": "easy/medium/hard",
+      "topic": "specific topic from resume",
+      "modelAnswer": "expected answer",
+      "keywords": ["kw1", "kw2", "kw3"]
+    }
+  ]
+}`;
+
+    const completion = await ai.client.chat.completions.create({
+      model: ai.model,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.5,
+      max_tokens: 2000
+    });
+
+    let result = {};
+    try {
+      const raw = completion.choices[0].message.content;
+      const clean = raw.replace(/```json|```/g, '').trim();
+      result = JSON.parse(clean);
+    } catch(e) {
+      return res.status(500).json({ error: 'Failed to parse AI response' });
+    }
+
+    res.json({ success: true, questions: result.questions || [] });
+
+  } catch (error) {
+    logger.error('Question generation error:', error);
+    res.status(500).json({ error: 'Question generation failed: ' + error.message });
+  }
+};

@@ -494,12 +494,12 @@
                     </div>
                     
                     <!-- Resume Upload -->
-                    <div class="mb-8">
+                    <div class="mb-6">
                         <div class="border-2 border-dashed border-indigo-300 rounded-xl p-8 text-center hover:bg-indigo-50 transition cursor-pointer relative" onclick="document.getElementById('resume-upload').click()" id="drop-zone">
                             <input type="file" id="resume-upload" accept=".pdf,.doc,.docx" class="hidden" onchange="handleResumeUpload(event)">
                             <i class="fas fa-cloud-upload-alt text-4xl text-indigo-500 mb-3"></i>
                             <p class="text-lg font-medium text-gray-700">Drop your resume here or click to upload</p>
-                            <p class="text-sm text-gray-500 mt-1">PDF, DOC, DOCX (Max 5MB)</p>
+                            <p class="text-sm text-gray-500 mt-1">PDF, DOC, DOCX (Max 5MB) — AI will extract skills & analyze</p>
                             <div id="upload-loading" class="hidden mt-4">
                                 <div class="typing-indicator justify-center">
                                     <span></span><span></span><span></span>
@@ -507,6 +507,90 @@
                                 <p class="text-sm text-indigo-600 mt-2">AI is analyzing your resume...</p>
                             </div>
                             <div id="upload-error" class="upload-error hidden mt-4"></div>
+                        </div>
+                    </div>
+
+                    <!-- Resume Analysis Panel (shown after upload) -->
+                    <div id="resume-analysis-panel" class="hidden mb-8">
+                        <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:1rem;padding:1.5rem;color:white">
+
+                            <!-- Header -->
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+                                <div style="display:flex;align-items:center;gap:0.75rem">
+                                    <div style="background:rgba(99,102,241,0.3);border-radius:0.75rem;padding:0.6rem">
+                                        <i class="fas fa-brain" style="color:#A5B4FC;font-size:1.25rem"></i>
+                                    </div>
+                                    <div>
+                                        <h3 style="margin:0;font-size:1.1rem;font-weight:700">AI Resume Analysis</h3>
+                                        <p style="margin:0;font-size:0.75rem;color:#A5B4FC" id="analysis-candidate-name">Analyzing...</p>
+                                    </div>
+                                </div>
+                                <div style="background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.4);border-radius:0.75rem;padding:0.5rem 1rem;text-align:center">
+                                    <div id="analysis-score" style="font-size:1.75rem;font-weight:800;color:#818CF8">--</div>
+                                    <div style="font-size:0.65rem;color:#A5B4FC">RESUME SCORE</div>
+                                </div>
+                            </div>
+
+                            <!-- Career Summary -->
+                            <div style="background:rgba(255,255,255,0.05);border-radius:0.75rem;padding:1rem;margin-bottom:1rem">
+                                <p id="analysis-summary" style="margin:0;font-size:0.85rem;color:#C7D2FE;line-height:1.6">Loading analysis...</p>
+                            </div>
+
+                            <!-- Stats Row -->
+                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-bottom:1rem">
+                                <div style="background:rgba(255,255,255,0.05);border-radius:0.75rem;padding:0.75rem;text-align:center">
+                                    <div id="analysis-exp" style="font-size:1.25rem;font-weight:700;color:#34D399">--</div>
+                                    <div style="font-size:0.7rem;color:#9CA3AF">Experience</div>
+                                </div>
+                                <div style="background:rgba(255,255,255,0.05);border-radius:0.75rem;padding:0.75rem;text-align:center">
+                                    <div id="analysis-level" style="font-size:1rem;font-weight:700;color:#60A5FA">--</div>
+                                    <div style="font-size:0.7rem;color:#9CA3AF">Level</div>
+                                </div>
+                                <div style="background:rgba(255,255,255,0.05);border-radius:0.75rem;padding:0.75rem;text-align:center">
+                                    <div id="analysis-skills-count" style="font-size:1.25rem;font-weight:700;color:#F472B6">--</div>
+                                    <div style="font-size:0.7rem;color:#9CA3AF">Skills Found</div>
+                                </div>
+                            </div>
+
+                            <!-- Two columns -->
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem">
+                                <div style="background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);border-radius:0.75rem;padding:0.875rem">
+                                    <div style="color:#34D399;font-weight:700;font-size:0.8rem;margin-bottom:0.5rem">✅ Strengths</div>
+                                    <ul id="analysis-strengths" style="margin:0;padding-left:1rem;color:#D1FAE5;font-size:0.78rem;line-height:1.9"></ul>
+                                </div>
+                                <div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);border-radius:0.75rem;padding:0.875rem">
+                                    <div style="color:#FCD34D;font-weight:700;font-size:0.8rem;margin-bottom:0.5rem">⚡ Skill Gaps</div>
+                                    <ul id="analysis-gaps" style="margin:0;padding-left:1rem;color:#FDE68A;font-size:0.78rem;line-height:1.9"></ul>
+                                </div>
+                            </div>
+
+                            <!-- Recommended Roles -->
+                            <div style="background:rgba(255,255,255,0.05);border-radius:0.75rem;padding:0.875rem;margin-bottom:1rem">
+                                <div style="color:#C4B5FD;font-weight:700;font-size:0.8rem;margin-bottom:0.5rem">🎯 Recommended Roles</div>
+                                <div id="analysis-roles" style="display:flex;flex-wrap:wrap;gap:0.5rem"></div>
+                            </div>
+
+                            <!-- Generate Questions Button -->
+                            <button onclick="generateResumeQuestions()" id="generate-questions-btn"
+                                style="width:100%;padding:0.875rem;background:linear-gradient(135deg,#4F46E5,#7C3AED);border:none;border-radius:0.75rem;color:white;font-weight:700;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:all 0.2s">
+                                <i class="fas fa-magic"></i> Generate Personalized Questions from Resume
+                            </button>
+                        </div>
+
+                        <!-- Generated Questions Panel -->
+                        <div id="generated-questions-panel" class="hidden mt-4">
+                            <div style="background:#F0FDF4;border:2px solid #86EFAC;border-radius:1rem;padding:1.25rem">
+                                <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem">
+                                    <i class="fas fa-check-circle" style="color:#16A34A;font-size:1.25rem"></i>
+                                    <h4 style="margin:0;color:#166534;font-weight:700">Personalized Questions Generated!</h4>
+                                </div>
+                                <p style="margin:0 0 1rem;color:#15803D;font-size:0.85rem">These questions are tailored to your resume. They will be included in your interview.</p>
+                                <div id="generated-questions-list" style="display:flex;flex-direction:column;gap:0.75rem"></div>
+                                <button onclick="useGeneratedQuestions()" 
+                                    style="width:100%;margin-top:1rem;padding:0.75rem;background:#16A34A;border:none;border-radius:0.75rem;color:white;font-weight:700;cursor:pointer;font-size:0.9rem">
+                                    ✅ Use These Questions in Interview
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -2616,6 +2700,151 @@ async function handleResumeUpload(e) {
         loadingDiv.classList.add('hidden');
         e.target.value = '';
     }
+    
+    // Also trigger AI analysis after parse
+    analyzeResumeWithAI(file);
+}
+
+// Store resume data globally
+let resumeAnalysisData = null;
+let generatedResumeQuestions = [];
+
+async function analyzeResumeWithAI(file) {
+    try {
+        const formData = new FormData();
+        formData.append('resume', file);
+        
+        const response = await fetch(`${API_BASE_URL}/resume/analyze`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${authToken}` },
+            body: formData
+        });
+        
+        if (!response.ok) return; // Silently fail — skills already extracted
+        
+        const data = await response.json();
+        if (!data.success) return;
+        
+        resumeAnalysisData = data.analysis;
+        resumeAnalysisData.resumeText = data.resumeText;
+        
+        // Show analysis panel
+        displayResumeAnalysis(data.analysis);
+        
+    } catch (error) {
+        console.error('Resume analysis error:', error);
+        // Don't show error — skills were already extracted successfully
+    }
+}
+
+function displayResumeAnalysis(analysis) {
+    const panel = document.getElementById('resume-analysis-panel');
+    panel.classList.remove('hidden');
+    
+    // Fill in data
+    document.getElementById('analysis-candidate-name').textContent = analysis.candidateName || 'Candidate';
+    document.getElementById('analysis-score').textContent = analysis.overallScore || '--';
+    document.getElementById('analysis-summary').textContent = analysis.careerSummary || 'Analysis complete.';
+    document.getElementById('analysis-exp').textContent = (analysis.yearsOfExperience || 0) + ' yrs';
+    document.getElementById('analysis-level').textContent = analysis.experienceLevel || '--';
+    document.getElementById('analysis-skills-count').textContent = (analysis.topSkills || []).length;
+    
+    // Strengths
+    const strengthsList = document.getElementById('analysis-strengths');
+    strengthsList.innerHTML = (analysis.strengths || analysis.technicalStrengths || [])
+        .slice(0,3).map(s => `<li>${s}</li>`).join('');
+    
+    // Skill gaps
+    const gapsList = document.getElementById('analysis-gaps');
+    gapsList.innerHTML = (analysis.skillGaps || [])
+        .slice(0,3).map(g => `<li>${g}</li>`).join('');
+    
+    // Recommended roles
+    const rolesDiv = document.getElementById('analysis-roles');
+    rolesDiv.innerHTML = (analysis.recommendedRoles || [])
+        .map(r => `<span style="background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.3);border-radius:999px;padding:0.25rem 0.75rem;font-size:0.75rem;color:#C4B5FD">${r}</span>`)
+        .join('');
+    
+    // Score color
+    const score = analysis.overallScore || 0;
+    const scoreEl = document.getElementById('analysis-score');
+    scoreEl.style.color = score >= 75 ? '#34D399' : score >= 50 ? '#60A5FA' : '#F87171';
+    
+    showNotification('✅ Resume analyzed! See full analysis below.', 'success');
+}
+
+async function generateResumeQuestions() {
+    if (!resumeAnalysisData) {
+        showNotification('Please upload your resume first!', 'warning');
+        return;
+    }
+    
+    const btn = document.getElementById('generate-questions-btn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating personalized questions...';
+    btn.disabled = true;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/resume/generate-questions`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                resumeText: resumeAnalysisData.resumeText || '',
+                skills: resumeAnalysisData.topSkills || [],
+                experienceLevel: resumeAnalysisData.experienceLevel || '',
+                focusAreas: resumeAnalysisData.interviewFocus || []
+            })
+        });
+        
+        const data = await response.json();
+        if (!data.success) throw new Error(data.error);
+        
+        generatedResumeQuestions = data.questions || [];
+        displayGeneratedQuestions(generatedResumeQuestions);
+        
+    } catch (error) {
+        showNotification('Question generation failed: ' + error.message, 'error');
+    } finally {
+        btn.innerHTML = '<i class="fas fa-magic"></i> Generate Personalized Questions from Resume';
+        btn.disabled = false;
+    }
+}
+
+function displayGeneratedQuestions(questions) {
+    const panel = document.getElementById('generated-questions-panel');
+    const list = document.getElementById('generated-questions-list');
+    
+    const categoryColors = {
+        technical: { bg: '#EFF6FF', border: '#BFDBFE', tag: '#1D4ED8', tagBg: '#DBEAFE' },
+        aptitude: { bg: '#F0FDF4', border: '#BBF7D0', tag: '#15803D', tagBg: '#DCFCE7' },
+        hr: { bg: '#FDF4FF', border: '#E9D5FF', tag: '#7E22CE', tagBg: '#F3E8FF' }
+    };
+    
+    list.innerHTML = questions.map((q, i) => {
+        const c = categoryColors[q.category] || categoryColors.technical;
+        return `
+        <div style="background:${c.bg};border:1px solid ${c.border};border-radius:0.75rem;padding:0.875rem">
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem">
+                <span style="background:${c.tagBg};color:${c.tag};padding:0.15rem 0.6rem;border-radius:999px;font-size:0.7rem;font-weight:700;text-transform:uppercase">${q.category}</span>
+                <span style="background:#F3F4F6;color:#6B7280;padding:0.15rem 0.6rem;border-radius:999px;font-size:0.7rem">${q.difficulty || 'medium'}</span>
+                <span style="color:#9CA3AF;font-size:0.7rem;margin-left:auto">${q.topic || ''}</span>
+            </div>
+            <p style="margin:0;color:#1F2937;font-size:0.85rem;font-weight:500">${i+1}. ${q.question}</p>
+        </div>`;
+    }).join('');
+    
+    panel.classList.remove('hidden');
+    showNotification(`✅ ${questions.length} personalized questions generated!`, 'success');
+}
+
+function useGeneratedQuestions() {
+    if (!generatedResumeQuestions.length) return;
+    // Store for use during interview
+    window.resumeGeneratedQuestions = generatedResumeQuestions;
+    showNotification(`✅ ${generatedResumeQuestions.length} resume-based questions will be used in your interview!`, 'success');
+    document.getElementById('generated-questions-panel').style.border = '2px solid #16A34A';
 }
 
           function addSkill() {
