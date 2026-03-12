@@ -7,15 +7,36 @@ const logger = winston.createLogger({
   transports: [new winston.transports.Console()]
 });
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+// Support both OpenAI and Groq (Groq uses OpenAI-compatible API)
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+// Only create client if a key exists — prevents crash on startup
+let openai = null;
+let AI_MODEL = null;
+
+if (GROQ_API_KEY) {
+  openai = new OpenAI({
+    apiKey: GROQ_API_KEY,
+    baseURL: 'https://api.groq.com/openai/v1'
+  });
+  AI_MODEL = 'llama3-8b-8192';
+  logger.info('AI Provider: Groq (llama3-8b-8192)');
+} else if (OPENAI_API_KEY) {
+  openai = new OpenAI({
+    apiKey: OPENAI_API_KEY
+  });
+  AI_MODEL = 'gpt-3.5-turbo';
+  logger.info('AI Provider: OpenAI (gpt-3.5-turbo)');
+} else {
+  logger.info('AI Provider: Fallback evaluator (no API key found)');
+}
 
 class AIService {
   async evaluateAnswer(question, userAnswer, modelAnswer, category, keywords = [], expectedPoints = []) {
     try {
-      // If no OpenAI key, use fallback
-      if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your-openai-api-key-here') {
+      // If no API client available, use fallback
+      if (!openai) {
         return this.fallbackEvaluation(userAnswer, modelAnswer, keywords, expectedPoints, category);
       }
 
@@ -54,7 +75,7 @@ Provide response in this exact JSON format:
 `;
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo", // Use gpt-4 if available
+        model: AI_MODEL,
         messages: [
           { role: "system", content: "You are an expert technical interviewer. Be fair but strict in evaluation." },
           { role: "user", content: prompt }
@@ -178,7 +199,7 @@ Provide response in this exact JSON format:
 
   async generateComprehensiveFeedback(interview) {
     try {
-      if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your-openai-api-key-here') {
+      if ((!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your-openai-api-key-here') && !process.env.GROQ_API_KEY) {
         return this.fallbackFeedback(interview);
       }
 
@@ -223,7 +244,7 @@ Generate feedback in this JSON format:
 `;
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: AI_MODEL,
         messages: [
           { role: "system", content: "You are a senior HR director providing detailed, actionable candidate feedback." },
           { role: "user", content: prompt }
@@ -290,7 +311,7 @@ Generate a specific follow-up that digs deeper into their knowledge. Return only
 `;
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: AI_MODEL,
         messages: [
           { role: "system", content: "You are a technical interviewer asking probing follow-up questions." },
           { role: "user", content: prompt }
