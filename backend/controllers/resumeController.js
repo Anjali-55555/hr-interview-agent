@@ -3,6 +3,7 @@ const mammoth = require('mammoth');
 const natural = require('natural');
 const compromise = require('compromise');
 const User = require('../models/User');
+const { OpenAI } = require('openai');
 const winston = require('winston');
 
 const logger = winston.createLogger({
@@ -401,13 +402,11 @@ exports.getSkillSuggestions = async (req, res) => {
 // ============================================================
 // AI Resume Analysis + Question Generation
 // ============================================================
-const { OpenAI } = require('openai');
-
 function getAIClient() {
   if (process.env.GROQ_API_KEY) {
     return {
       client: new OpenAI({ apiKey: process.env.GROQ_API_KEY, baseURL: 'https://api.groq.com/openai/v1' }),
-      model: 'llama3-8b-8192'
+      model: 'llama-3.3-70b-versatile'
     };
   } else if (process.env.OPENAI_API_KEY) {
     return { client: new OpenAI({ apiKey: process.env.OPENAI_API_KEY }), model: 'gpt-3.5-turbo' };
@@ -424,11 +423,9 @@ exports.analyzeResume = async (req, res) => {
     let text = '';
 
     if (fileType === 'application/pdf') {
-      const pdfParse = require('pdf-parse');
       const pdfData = await pdfParse(fileBuffer);
       text = pdfData.text;
     } else if (fileType.includes('word')) {
-      const mammoth = require('mammoth');
       const result = await mammoth.extractRawText({ buffer: fileBuffer });
       text = result.value;
     } else {

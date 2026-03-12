@@ -20,7 +20,7 @@ if (GROQ_API_KEY) {
     apiKey: GROQ_API_KEY,
     baseURL: 'https://api.groq.com/openai/v1'
   });
-  AI_MODEL = 'llama3-8b-8192';
+  AI_MODEL = 'llama-3.3-70b-versatile';
   logger.info('AI Provider: Groq (llama3-8b-8192)');
 } else if (OPENAI_API_KEY) {
   openai = new OpenAI({
