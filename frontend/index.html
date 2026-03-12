@@ -649,9 +649,189 @@
                         </div>
                     </div>
                     
-                    <button onclick="startInterview()" class="w-full mt-8 gradient-bg text-white py-4 rounded-lg font-semibold text-lg hover:opacity-90 transition transform hover:scale-[1.02]">
+                    <button onclick="showInstructionsModal()" class="w-full mt-8 gradient-bg text-white py-4 rounded-lg font-semibold text-lg hover:opacity-90 transition transform hover:scale-[1.02]">
                         Start AI Interview <i class="fas fa-play ml-2"></i>
                     </button>
+
+<!-- Instructions Modal -->
+<div id="instructions-modal" class="fixed inset-0 z-50 hidden" style="background:linear-gradient(135deg,#0F0C29,#302B63,#24243e);overflow-y:auto">
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:2rem 1rem">
+
+    <!-- Header -->
+    <div style="width:100%;max-width:860px;text-align:center;margin-bottom:2rem">
+      <div style="display:inline-flex;align-items:center;gap:0.75rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:999px;padding:0.5rem 1.25rem;margin-bottom:1rem">
+        <span style="width:8px;height:8px;background:#22C55E;border-radius:50%;display:inline-block;box-shadow:0 0 8px #22C55E"></span>
+        <span style="color:#C7D2FE;font-size:0.8rem;font-weight:500;letter-spacing:0.05em">AI INTERVIEW SYSTEM</span>
+      </div>
+      <h1 style="color:white;font-size:2.2rem;font-weight:800;margin:0 0 0.5rem">Before You Begin</h1>
+      <p style="color:#A5B4FC;font-size:1rem;margin:0">Read all instructions carefully. Your interview will be monitored for integrity.</p>
+    </div>
+
+    <div style="width:100%;max-width:860px;display:flex;flex-direction:column;gap:1.25rem">
+
+      <!-- Important Notice Banner -->
+      <div style="background:linear-gradient(135deg,rgba(239,68,68,0.15),rgba(220,38,38,0.1));border:1px solid rgba(239,68,68,0.4);border-radius:1rem;padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem">
+        <span style="font-size:1.75rem;flex-shrink:0">🚨</span>
+        <div>
+          <div style="color:#FCA5A5;font-weight:700;font-size:0.95rem">Anti-Cheat Monitoring Active</div>
+          <div style="color:#FCD34D;font-size:0.82rem;margin-top:0.2rem">This interview uses AI-powered monitoring. Any suspicious activity will be recorded and may result in immediate termination.</div>
+        </div>
+      </div>
+
+      <!-- Two Column Layout -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+
+        <!-- General Rules -->
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:1rem;overflow:hidden">
+          <div style="background:rgba(79,70,229,0.3);padding:0.75rem 1rem;display:flex;align-items:center;gap:0.5rem;border-bottom:1px solid rgba(255,255,255,0.08)">
+            <span>📋</span><strong style="color:#C7D2FE;font-size:0.9rem">General Rules</strong>
+          </div>
+          <ul style="padding:1rem 1rem 1rem 1.5rem;margin:0;color:#D1D5DB;font-size:0.82rem;line-height:2">
+            <li>Answer all questions honestly in your own words</li>
+            <li>Type your answer or press <kbd style="background:rgba(255,255,255,0.15);padding:0.1rem 0.4rem;border-radius:4px;font-size:0.75rem">Space</kbd> to use microphone</li>
+            <li>Questions are read aloud automatically via TTS</li>
+            <li>Stay on this tab for the entire interview</li>
+            <li>Keep your face visible to the camera at all times</li>
+            <li>Submit meaningful answers — gibberish will be rejected</li>
+            <li>Do not use any external help, AI tools or notes</li>
+          </ul>
+        </div>
+
+        <!-- Interview Structure -->
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:1rem;overflow:hidden">
+          <div style="background:rgba(5,150,105,0.3);padding:0.75rem 1rem;display:flex;align-items:center;gap:0.5rem;border-bottom:1px solid rgba(255,255,255,0.08)">
+            <span>📊</span><strong style="color:#A7F3D0;font-size:0.9rem">Interview Structure</strong>
+          </div>
+          <div style="padding:1rem;display:flex;flex-direction:column;gap:0.75rem">
+            <div style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:0.75rem;padding:0.75rem;display:flex;align-items:center;gap:0.75rem">
+              <span style="font-size:1.5rem">📐</span>
+              <div>
+                <div style="color:#93C5FD;font-weight:700;font-size:0.85rem">Round 1 — Aptitude</div>
+                <div style="color:#9CA3AF;font-size:0.75rem">Math, Logic & Reasoning problems</div>
+              </div>
+            </div>
+            <div style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:0.75rem;padding:0.75rem;display:flex;align-items:center;gap:0.75rem">
+              <span style="font-size:1.5rem">💻</span>
+              <div>
+                <div style="color:#C4B5FD;font-weight:700;font-size:0.85rem">Round 2 — Technical</div>
+                <div style="color:#9CA3AF;font-size:0.75rem">Programming & CS concepts</div>
+              </div>
+            </div>
+            <div style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);border-radius:0.75rem;padding:0.75rem;display:flex;align-items:center;gap:0.75rem">
+              <span style="font-size:1.5rem">🤝</span>
+              <div>
+                <div style="color:#6EE7B7;font-weight:700;font-size:0.85rem">Round 3 — HR</div>
+                <div style="color:#9CA3AF;font-size:0.75rem">Behavioural & situational questions</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Violations Section - Full Width -->
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(239,68,68,0.3);border-radius:1rem;overflow:hidden">
+        <div style="background:rgba(220,38,38,0.2);padding:0.75rem 1.25rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(239,68,68,0.2)">
+          <div style="display:flex;align-items:center;gap:0.5rem">
+            <span>⚠️</span><strong style="color:#FCA5A5;font-size:0.9rem">Actions That Cause Violations</strong>
+          </div>
+          <span style="background:rgba(239,68,68,0.3);color:#FCA5A5;padding:0.2rem 0.75rem;border-radius:999px;font-size:0.75rem;font-weight:700;border:1px solid rgba(239,68,68,0.4)">10 violations = Terminated ❌</span>
+        </div>
+        <div style="padding:1rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem">
+
+          <!-- Critical -->
+          <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:0.75rem;padding:0.875rem">
+            <div style="color:#F87171;font-weight:700;font-size:0.8rem;margin-bottom:0.6rem;display:flex;align-items:center;gap:0.4rem">
+              <span style="width:8px;height:8px;background:#EF4444;border-radius:50%;display:inline-block"></span> CRITICAL
+            </div>
+            <ul style="margin:0;padding-left:1rem;color:#FCA5A5;font-size:0.76rem;line-height:1.9">
+              <li>Switching tabs or windows</li>
+              <li>Opening new tab (Ctrl+T)</li>
+              <li>Opening new window (Ctrl+N)</li>
+              <li>Incognito window (Ctrl+Shift+N)</li>
+              <li>Copy-paste (Ctrl+C/V/X)</li>
+              <li>AI-generated content detected</li>
+              <li>Burst/rapid text pasting</li>
+            </ul>
+          </div>
+
+          <!-- High -->
+          <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:0.75rem;padding:0.875rem">
+            <div style="color:#FCD34D;font-weight:700;font-size:0.8rem;margin-bottom:0.6rem;display:flex;align-items:center;gap:0.4rem">
+              <span style="width:8px;height:8px;background:#F59E0B;border-radius:50%;display:inline-block"></span> HIGH
+            </div>
+            <ul style="margin:0;padding-left:1rem;color:#FDE68A;font-size:0.76rem;line-height:1.9">
+              <li>F12 DevTools / Inspect</li>
+              <li>Typing speed &gt;150 WPM</li>
+              <li>Ctrl+U / Ctrl+S / Ctrl+P</li>
+              <li>Alt+Arrow navigation</li>
+              <li>Face not visible to camera</li>
+              <li>Answer with no typing history</li>
+            </ul>
+          </div>
+
+          <!-- Medium -->
+          <div style="background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.2);border-radius:0.75rem;padding:0.875rem">
+            <div style="color:#FDE047;font-weight:700;font-size:0.8rem;margin-bottom:0.6rem;display:flex;align-items:center;gap:0.4rem">
+              <span style="width:8px;height:8px;background:#EAB308;border-radius:50%;display:inline-block"></span> MEDIUM
+            </div>
+            <ul style="margin:0;padding-left:1rem;color:#FEF08A;font-size:0.76rem;line-height:1.9">
+              <li>Right-clicking on the page</li>
+              <li>Taking screenshots (PrtSc)</li>
+              <li>Attempting page refresh</li>
+              <li>Drag and drop actions</li>
+              <li>Ctrl+F find on page</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Timer & Scoring Info -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:1rem;padding:1rem 1.25rem">
+          <div style="color:#93C5FD;font-weight:700;font-size:0.85rem;margin-bottom:0.6rem">⏱️ Time Per Question</div>
+          <ul style="margin:0;padding-left:1rem;color:#D1D5DB;font-size:0.8rem;line-height:2">
+            <li>Aptitude: <strong style="color:white">3 minutes</strong></li>
+            <li>Technical: <strong style="color:white">5 minutes</strong></li>
+            <li>HR: <strong style="color:white">4 minutes</strong></li>
+            <li>Timer starts after question is read</li>
+          </ul>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:1rem;padding:1rem 1.25rem">
+          <div style="color:#86EFAC;font-weight:700;font-size:0.85rem;margin-bottom:0.6rem">🏆 Scoring System</div>
+          <ul style="margin:0;padding-left:1rem;color:#D1D5DB;font-size:0.8rem;line-height:2">
+            <li>Each answer scored <strong style="color:white">0–100</strong></li>
+            <li>AI evaluates accuracy & depth</li>
+            <li>Detailed feedback after each answer</li>
+            <li>Final report generated at the end</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Checkbox + Button -->
+      <div style="background:rgba(79,70,229,0.1);border:2px solid rgba(79,70,229,0.3);border-radius:1rem;padding:1.25rem">
+        <label style="display:flex;align-items:flex-start;gap:0.875rem;cursor:pointer;margin-bottom:1rem">
+          <input type="checkbox" id="instructions-checkbox" onchange="toggleProceedBtn()"
+            style="width:1.2rem;height:1.2rem;margin-top:0.1rem;cursor:pointer;accent-color:#6366F1;flex-shrink:0">
+          <span style="color:#C7D2FE;font-size:0.875rem;line-height:1.6">
+            I have read and understood all the instructions above. I agree to complete this interview honestly without using any unfair means. I understand that violations may result in my interview being terminated.
+          </span>
+        </label>
+        <div style="display:flex;gap:0.75rem">
+          <button onclick="closeInstructionsModal()"
+            style="flex:1;padding:0.9rem;border-radius:0.75rem;border:2px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#9CA3AF;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s">
+            ← Cancel
+          </button>
+          <button id="proceed-btn" onclick="proceedToInterview()" disabled
+            style="flex:2;padding:0.9rem;border-radius:0.75rem;border:none;background:#4B5563;color:#9CA3AF;font-weight:700;cursor:not-allowed;font-size:0.95rem;transition:all 0.3s;letter-spacing:0.02em">
+            ✓ I Agree — Start Interview
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
                 </div>
             </div>
         </div>
@@ -967,13 +1147,9 @@
 
     <script>
         // ==================== CONFIGURATION ====================
-        // For local development (no Docker): http://localhost:5000/api
-        // For Docker deployment: /api
-        const API_BASE_URL = window.location.port === '5500' || window.location.protocol === 'file:'
-            ? 'http://localhost:5000/api'
-            : (window.location.hostname === 'localhost' && window.location.port !== '80' && window.location.port !== '443' && window.location.port !== '')
-                ? 'http://localhost:5000/api'
-                : '/api';
+        const RENDER_BACKEND_URL = 'https://hr-interview-agent-seg4.onrender.com';
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const API_BASE_URL = isLocal ? '/api' : `${RENDER_BACKEND_URL}/api`;
 
         console.log('API Base URL:', API_BASE_URL);
         console.log('Current page:', window.location.href);
@@ -2578,6 +2754,35 @@ async function handleResumeUpload(e) {
         // ==================== INTERVIEW ====================
 
         let interviewConfig = {};
+
+        function showInstructionsModal() {
+            document.getElementById('instructions-modal').classList.remove('hidden');
+            document.getElementById('instructions-checkbox').checked = false;
+            const btn = document.getElementById('proceed-btn');
+            btn.disabled = true;
+            btn.style.background = '#9CA3AF';
+            btn.style.cursor = 'not-allowed';
+        }
+
+        function closeInstructionsModal() {
+            document.getElementById('instructions-modal').classList.add('hidden');
+        }
+
+        function toggleProceedBtn() {
+            const checked = document.getElementById('instructions-checkbox').checked;
+            const btn = document.getElementById('proceed-btn');
+            btn.disabled = !checked;
+            btn.style.background = checked ? 'linear-gradient(135deg,#4F46E5,#7C3AED)' : '#4B5563';
+            btn.style.color = checked ? 'white' : '#9CA3AF';
+            btn.style.cursor = checked ? 'pointer' : 'not-allowed';
+            btn.style.boxShadow = checked ? '0 4px 20px rgba(99,102,241,0.4)' : 'none';
+        }
+
+        function proceedToInterview() {
+            if (!document.getElementById('instructions-checkbox').checked) return;
+            closeInstructionsModal();
+            startInterview();
+        }
 
         async function startInterview() {
 window.isAskingQuestion = false;
