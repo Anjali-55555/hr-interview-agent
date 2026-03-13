@@ -579,17 +579,12 @@
 
                         <!-- Generated Questions Panel -->
                         <div id="generated-questions-panel" class="hidden mt-4">
-                            <div style="background:#F0FDF4;border:2px solid #86EFAC;border-radius:1rem;padding:1.25rem">
-                                <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem">
-                                    <i class="fas fa-check-circle" style="color:#16A34A;font-size:1.25rem"></i>
-                                    <h4 style="margin:0;color:#166534;font-weight:700">Personalized Questions Generated!</h4>
+                            <div style="background:#F0FDF4;border:2px solid #86EFAC;border-radius:1rem;padding:1.25rem;display:flex;align-items:center;gap:1rem">
+                                <i class="fas fa-check-circle" style="color:#16A34A;font-size:2rem"></i>
+                                <div>
+                                    <h4 style="margin:0;color:#166534;font-weight:700" id="generated-questions-count-label">Personalized Questions Ready!</h4>
+                                    <p style="margin:0.25rem 0 0;color:#15803D;font-size:0.85rem">These will automatically appear during your interview rounds.</p>
                                 </div>
-                                <p style="margin:0 0 1rem;color:#15803D;font-size:0.85rem">These questions are tailored to your resume. They will be included in your interview.</p>
-                                <div id="generated-questions-list" style="display:flex;flex-direction:column;gap:0.75rem"></div>
-                                <button onclick="useGeneratedQuestions()" 
-                                    style="width:100%;margin-top:1rem;padding:0.75rem;background:#16A34A;border:none;border-radius:0.75rem;color:white;font-weight:700;cursor:pointer;font-size:0.9rem">
-                                    ✅ Use These Questions in Interview
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -2731,9 +2726,55 @@ async function analyzeResumeWithAI(file) {
         // Show analysis panel
         displayResumeAnalysis(data.analysis);
         
+        // Auto-generate questions immediately after analysis
+        await autoGenerateResumeQuestions();
+        
     } catch (error) {
         console.error('Resume analysis error:', error);
         // Don't show error — skills were already extracted successfully
+    }
+}
+
+async function autoGenerateResumeQuestions() {
+    if (!resumeAnalysisData) return;
+    
+    // Show loading state on button
+    const btn = document.getElementById('generate-questions-btn');
+    if (btn) {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Auto-generating personalized questions...';
+        btn.disabled = true;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/resume/generate-questions`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                resumeText: resumeAnalysisData.resumeText || '',
+                skills: resumeAnalysisData.topSkills || [],
+                experienceLevel: resumeAnalysisData.experienceLevel || '',
+                focusAreas: resumeAnalysisData.interviewFocus || []
+            })
+        });
+        
+        const data = await response.json();
+        if (!data.success) throw new Error(data.error);
+        
+        generatedResumeQuestions = data.questions || [];
+        window.resumeGeneratedQuestions = generatedResumeQuestions;
+        
+        displayGeneratedQuestions(generatedResumeQuestions);
+        showNotification(`✅ ${generatedResumeQuestions.length} personalized questions will be included in your interview!`, 'success');
+        
+    } catch (error) {
+        console.error('Auto question generation failed:', error);
+        if (btn) {
+            btn.innerHTML = '<i class="fas fa-magic"></i> Generate Personalized Questions from Resume';
+            btn.disabled = false;
+        }
     }
 }
 
@@ -2814,37 +2855,27 @@ async function generateResumeQuestions() {
 
 function displayGeneratedQuestions(questions) {
     const panel = document.getElementById('generated-questions-panel');
-    const list = document.getElementById('generated-questions-list');
     
-    const categoryColors = {
-        technical: { bg: '#EFF6FF', border: '#BFDBFE', tag: '#1D4ED8', tagBg: '#DBEAFE' },
-        aptitude: { bg: '#F0FDF4', border: '#BBF7D0', tag: '#15803D', tagBg: '#DCFCE7' },
-        hr: { bg: '#FDF4FF', border: '#E9D5FF', tag: '#7E22CE', tagBg: '#F3E8FF' }
-    };
+    // Auto-save immediately
+    window.resumeGeneratedQuestions = questions;
     
-    list.innerHTML = questions.map((q, i) => {
-        const c = categoryColors[q.category] || categoryColors.technical;
-        return `
-        <div style="background:${c.bg};border:1px solid ${c.border};border-radius:0.75rem;padding:0.875rem">
-            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem">
-                <span style="background:${c.tagBg};color:${c.tag};padding:0.15rem 0.6rem;border-radius:999px;font-size:0.7rem;font-weight:700;text-transform:uppercase">${q.category}</span>
-                <span style="background:#F3F4F6;color:#6B7280;padding:0.15rem 0.6rem;border-radius:999px;font-size:0.7rem">${q.difficulty || 'medium'}</span>
-                <span style="color:#9CA3AF;font-size:0.7rem;margin-left:auto">${q.topic || ''}</span>
-            </div>
-            <p style="margin:0;color:#1F2937;font-size:0.85rem;font-weight:500">${i+1}. ${q.question}</p>
-        </div>`;
-    }).join('');
+    // Update badge label
+    const technical = questions.filter(q => q.category === 'technical').length;
+    const aptitude = questions.filter(q => q.category === 'aptitude').length;
+    const hr = questions.filter(q => q.category === 'hr').length;
+    const label = document.getElementById('generated-questions-count-label');
+    if (label) label.textContent = `✅ ${questions.length} Personalized Questions Ready! (${technical} Technical, ${aptitude} Aptitude, ${hr} HR)`;
+    
+    // Hide the generate button — already done
+    const btn = document.getElementById('generate-questions-btn');
+    if (btn) btn.style.display = 'none';
     
     panel.classList.remove('hidden');
-    showNotification(`✅ ${questions.length} personalized questions generated!`, 'success');
+    showNotification(`✅ ${questions.length} personalized questions added to your interview!`, 'success');
 }
 
 function useGeneratedQuestions() {
-    if (!generatedResumeQuestions.length) return;
-    // Store for use during interview
-    window.resumeGeneratedQuestions = generatedResumeQuestions;
-    showNotification(`✅ ${generatedResumeQuestions.length} resume-based questions will be used in your interview!`, 'success');
-    document.getElementById('generated-questions-panel').style.border = '2px solid #16A34A';
+    // kept for compatibility — auto-saved in displayGeneratedQuestions
 }
 
           function addSkill() {
@@ -3132,32 +3163,78 @@ window.isAskingQuestion = false;
     console.log('Technical:', questions.technical?.length || 0, questions.technical?.[0]?.question?.substring(0, 50));
     console.log('HR:', questions.hr?.length || 0, questions.hr?.[0]?.question?.substring(0, 50));
     
+    // Convert resume-generated questions to interview format
+    const resumeQs = window.resumeGeneratedQuestions || [];
+    const resumeTechnical = resumeQs.filter(q => q.category === 'technical').map((q, idx) => ({
+        question: q.question,
+        category: 'technical',
+        difficulty: q.difficulty || 'medium',
+        topic: q.topic || 'Resume-based',
+        keywords: q.keywords || [],
+        modelAnswer: q.modelAnswer || '',
+        fromResume: true,
+        _id: `resume-tech-${idx}`
+    }));
+    const resumeAptitude = resumeQs.filter(q => q.category === 'aptitude').map((q, idx) => ({
+        question: q.question,
+        category: 'aptitude',
+        difficulty: q.difficulty || 'medium',
+        topic: q.topic || 'Resume-based',
+        keywords: q.keywords || [],
+        modelAnswer: q.modelAnswer || '',
+        fromResume: true,
+        _id: `resume-apt-${idx}`
+    }));
+    const resumeHR = resumeQs.filter(q => q.category === 'hr').map((q, idx) => ({
+        question: q.question,
+        category: 'hr',
+        difficulty: q.difficulty || 'medium',
+        topic: q.topic || 'Resume-based',
+        keywords: q.keywords || [],
+        modelAnswer: q.modelAnswer || '',
+        fromResume: true,
+        _id: `resume-hr-${idx}`
+    }));
+
+    if (resumeQs.length > 0) {
+        console.log(`✅ Injecting ${resumeQs.length} resume questions into interview rounds`);
+    }
+
     interviewData = {
-        aptitude: (questions.aptitude || []).map((q, idx) => ({ 
-            ...q, 
-            category: 'aptitude', 
-            questionIndex: idx,
-            _id: q._id || `apt-${idx}`
-        })),
-        technical: (questions.technical || []).map((q, idx) => ({ 
-            ...q, 
-            category: 'technical', 
-            questionIndex: idx,
-            _id: q._id || `tech-${idx}`
-        })),
-        hr: (questions.hr || []).map((q, idx) => ({ 
-            ...q, 
-            category: 'hr', 
-            questionIndex: idx,
-            _id: q._id || `hr-${idx}`
-        }))
+        aptitude: [
+            ...resumeAptitude,
+            ...(questions.aptitude || []).map((q, idx) => ({ 
+                ...q, 
+                category: 'aptitude', 
+                questionIndex: idx,
+                _id: q._id || `apt-${idx}`
+            }))
+        ],
+        technical: [
+            ...resumeTechnical,
+            ...(questions.technical || []).map((q, idx) => ({ 
+                ...q, 
+                category: 'technical', 
+                questionIndex: idx,
+                _id: q._id || `tech-${idx}`
+            }))
+        ],
+        hr: [
+            ...resumeHR,
+            ...(questions.hr || []).map((q, idx) => ({ 
+                ...q, 
+                category: 'hr', 
+                questionIndex: idx,
+                _id: q._id || `hr-${idx}`
+            }))
+        ]
     };
     
     // Log after mapping
-    console.log('=== After Mapping ===');
-    console.log('Aptitude:', interviewData.aptitude.length);
-    console.log('Technical:', interviewData.technical.length);
-    console.log('HR:', interviewData.hr.length);
+    console.log('=== After Mapping (with resume questions) ===');
+    console.log('Aptitude:', interviewData.aptitude.length, `(${resumeAptitude.length} from resume)`);
+    console.log('Technical:', interviewData.technical.length, `(${resumeTechnical.length} from resume)`);
+    console.log('HR:', interviewData.hr.length, `(${resumeHR.length} from resume)`);
 }
         function startTimer() {
             updateTimerDisplay();
