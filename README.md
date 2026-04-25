@@ -1,32 +1,56 @@
-\# 🤖 AI HR Interview Agent Pro
+# AI-HR Interview Agent
 
+An AI-powered HR Interview Platform with resume analysis, personalized 
+question generation, anti-cheat monitoring, and voice recognition — 
+powered by Groq API's LLaMA 3.3-70B model.
 
+🔗 **Live Demo**: https://hr-interview-agent-frontend.onrender.com/
 
-AI-powered automated interview platform with resume analysis \& personalized questions.
+## 📸 Screenshots
 
+![Screenshot 1](Screenshot%202026-04-25%20161248.png)
 
+![Screenshot 2](Screenshot%202026-04-25%20161429.png)
 
-\## 🌐 Live Demo
+![Screenshot 3](Screenshot%202026-04-25%20161456.png)
 
-👉 https://hr-interview-agent-frontend.onrender.com
+![Screenshot 4](Screenshot%202026-04-25%20161543.png)
 
+![Screenshot 5](Screenshot%202026-04-25%20161644.png)
 
+## 🚀 Features
+- Resume analysis and personalized interview question generation
+- AI-driven candidate response evaluation using LLaMA 3.3-70B
+- Anti-cheat monitoring during interview sessions
+- Voice recognition for hands-free interview experience
+- Real-time screening with automated scoring metrics
+- REST API backend with MongoDB data persistence
 
-\## ⚡ Tech Stack
+## 🛠️ Tech Stack
+- **Frontend**: React.js
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB
+- **AI Model**: Groq API (LLaMA 3.3-70B)
+- **Deployment**: Render
 
-Node.js • Express • MongoDB • Groq AI • Docker • Render
+## ⚙️ How to Run Locally
 
+### Backend
+```bash
+git clone https://github.com/Anjali-55555/hr-interview-agent
+cd hr-interview-agent
+npm install
+npm start
+```
 
+### Frontend
+```bash
+cd frontend
+npm install
+npm start
+```
 
-\## 🚀 Features
-
-\- 3-round AI interview (Aptitude, Technical, HR)
-
-\- Resume analysis \& personalized question generation
-
-\- Anti-cheat monitoring
-
-\- Voice recognition
-
-\- JWT authentication
-
+## 👩‍💻 Author
+**Kanneboyina Premanjali**  
+[LinkedIn](https://linkedin.com/in/kanneboyina-premanjali-157625394) | 
+[GitHub](https://github.com/Anjali-55555)
