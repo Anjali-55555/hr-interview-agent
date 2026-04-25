@@ -14,9 +14,10 @@ powered by Groq API's LLaMA 3.3-70B model.
 
 ![Screenshot 3](Screenshot%202026-04-25%20161456.png)
 
+![Screenshot 5](Screenshot%202026-04-25%20161644.png)
+
 ![Screenshot 4](Screenshot%202026-04-25%20161543.png)
 
-![Screenshot 5](Screenshot%202026-04-25%20161644.png)
 
 ## 🚀 Features
 - Resume analysis and personalized interview question generation
